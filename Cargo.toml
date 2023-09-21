@@ -1,0 +1,36 @@
+[package]
+name = "tardis-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+# Async
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+async-stream = "0.3"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+
+# Time
+chrono = "0.4"
+
+# Error
+thiserror = "1.0"
+
+# Websocket
+tokio-tungstenite = { version = "0.20", features = ["rustls-tls-native-roots"] }
+
+# HTTP
+reqwest = { version = "0.11", features = ["json"] }
+
+# SerDe
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0", features = [] }
+
+# Utils
+urlencoding = "2.1"
+tracing = "0.1"
+
+[dev-dependencies]
+tracing-test = "0.2"

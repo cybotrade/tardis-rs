@@ -1,5 +1,13 @@
 [package]
 name = "tardis-rs"
+description = "A rust crate that allows you to easily replay historical market data and stream live market data through Tardis.dev's API"
+authors = ["Marcus Lee <marcuslee@balaenaquant.com>"]
+readme = "README.md"
+license = "GNU Lesser General Public License v3.0"
+license-file = "LICENSE"
+homepage = "https://github.com/cybotrade/tardis-rs/"
+repository = "https://github.com/cybotrade/tardis-rs/"
+keywords = ["tardis", "market-data", "cryptocurrency", "trading"]
 version = "0.1.0"
 edition = "2021"
 

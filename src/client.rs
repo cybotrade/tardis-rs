@@ -1,16 +1,21 @@
 use crate::{Exchange, InstrumentInfo, Response};
 
+/// A helper Result type.
 pub type Result<T> = std::result::Result<T, Error>;
 
+/// The error that could happen while sending / receiving requests.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    /// The error that could happen when sending a request to Tardis.
     #[error("Failed to send request: {0}")]
     Request(#[from] reqwest::Error),
 
+    /// The error that could happen when deserializing the response from Tardis.
     #[error("Failed to deserialize message: {0}")]
     Deserialization(#[from] serde_json::Error),
 }
 
+/// The client for interacting with [Tardis API](https://docs.tardis.dev/api/http).
 pub struct Client {
     base_url: String,
     api_key: String,
@@ -18,6 +23,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Creates a new instance of [`Client`].
     pub fn new(api_key: impl ToString) -> Self {
         static USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
@@ -31,6 +37,8 @@ impl Client {
         }
     }
 
+    /// Returns instrument info for a given exchange and symbol.
+    /// See <https://docs.tardis.dev/api/instruments-metadata-api#single-instrument-info-endpoint>
     pub async fn single_instrument_info(
         &self,
         exchange: Exchange,

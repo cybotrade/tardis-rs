@@ -4,20 +4,42 @@ use serde::{Deserialize, Serialize};
 #[serde(untagged)]
 /// The response format for Tardis.dev API.
 pub enum Response<T> {
-    Error { code: u64, message: String },
-    Data(T),
+    /// The error response.
+    Error {
+        /// Error code
+        code: u64,
+
+        /// Error message
+        message: String,
+    },
+
+    /// The success response.
+    Success(T),
 }
 
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 /// Supported exchanges on Tardis
-/// Call https://api.tardis.dev/v1/exchanges to get the list of all supported exchanges that historical market data is available for.
+/// Visit <https://api.tardis.dev/v1/exchanges> to get the list of all supported exchanges that
+/// historical market data is available for.
 pub enum Exchange {
+    /// [Bitmex](https://www.bitmex.com/) exchange.
     Bitmex,
+
+    /// [Deribit](https://www.deribit.com/) exchange.
     Deribit,
+
+    /// [Binance](https://binance.com/) exchange.
     BinanceFutures,
+
+    /// [Binance](https://binance.com/) exchange.
     BinanceDelivery,
+
+    /// [Binance](https://binance.com/) exchange.
     BinanceOptions,
+
+    /// [Binance](https://binance.com/) exchange.
     Binance,
     Ftx,
     OkexFutures,
@@ -80,9 +102,16 @@ impl ToString for Exchange {
 #[serde(rename_all = "lowercase")]
 /// The type of the symbol eg. Spot, Perpetual, Future, Option.
 pub enum SymbolType {
+    /// Spot market.
     Spot,
+
+    /// Perpetual market (also known as Linear).
     Perpetual,
+
+    /// Futures market (also known as Delivery).
     Future,
+
+    /// Option market.
     Option,
 }
 
@@ -90,7 +119,10 @@ pub enum SymbolType {
 #[serde(rename_all = "lowercase")]
 /// The type of an option symbol eg. Call, Put
 pub enum OptionType {
+    /// Call option.
     Call,
+
+    /// Put option.
     Put,
 }
 
@@ -121,7 +153,7 @@ pub struct InstrumentChanges {
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
-/// The metadata of a particular instrument, see https://docs.tardis.dev/api/instruments-metadata-api
+/// The metadata of a particular instrument, see <https://docs.tardis.dev/api/instruments-metadata-api>.
 pub struct InstrumentInfo {
     /// Symbol ID
     pub id: String,

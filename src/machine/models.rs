@@ -6,21 +6,63 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReplayNormalizedRequestOptions {
+    /// Requested [`Exchange`].
     pub exchange: Exchange,
 
+    /// Optional symbols of requested historical data feed.
+    /// Use /exchanges/:exchange HTTP API to get allowed symbols for requested exchange.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
     pub symbols: Option<Vec<String>>,
+
+    /// Replay period start date (UTC) in a ISO 8601 format, e.g., 2019-04-01
     pub from: NaiveDate,
+
+    /// Replay period start date (UTC) in a ISO 8601 format, e.g., 2019-04-02
     pub to: NaiveDate,
+
+    /// Array of normalized [data types](https://docs.tardis.dev/api/tardis-machine#normalized-data-types)
+    /// for which real-time data will be provided.
     pub data_types: Vec<String>,
 
+    /// When set to true, sends also disconnect messages that mark events when real-time WebSocket
+    /// connection that was used to collect the historical data got disconnected.
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
     pub with_disconnect_messages: Option<bool>,
 }
 
+/// The options that can be specified for calling Tardis Machine Server's stream-normalized.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StreamNormalizedRequestOptions {
+    /// Requested [`Exchange`].
+    pub exchange: Exchange,
+
+    /// Optional symbols of requested real-time data feed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub symbols: Option<Vec<String>>,
+
+    /// Array of normalized [data types](https://docs.tardis.dev/api/tardis-machine#normalized-data-types)
+    /// for which real-time data will be provided.
+    pub data_types: Vec<String>,
+
+    /// When set to true, sends disconnect messages anytime underlying exchange real-time WebSocket
+    /// connection(s) gets disconnected.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub with_disconnect_messages: Option<bool>,
+
+    /// Specifies time in milliseconds after which connection to real-time exchanges' WebSocket API
+    /// is restarted if no message has been received.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, rename = "timeoutIntervalMS")]
+    pub timeout_interval_ms: Option<u64>,
+}
+
 /// The possible type of message returned from Tardis Machine Server.
+#[allow(missing_docs)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum Message {
@@ -36,8 +78,13 @@ pub enum Message {
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TradeSide {
+    /// Buy order.
     Buy,
+
+    /// Sell order.
     Sell,
+
+    /// Unknown order.
     Unknown,
 }
 
@@ -135,7 +182,10 @@ pub struct DerivativeTicker {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookLevel {
+    /// The desired price of the order.
     pub price: f64,
+
+    /// The quantity of the order.
     pub amount: f64,
 }
 
@@ -176,6 +226,7 @@ pub struct BookSnapshot {
 }
 
 /// Kind of the trade bar.
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum TradeBarKind {

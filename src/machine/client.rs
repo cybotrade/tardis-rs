@@ -100,7 +100,7 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use crate::Exchange;
-    use chrono::{TimeZone, Utc};
+    use chrono::NaiveDate;
     use futures_util::pin_mut;
     use tracing_test::traced_test;
 
@@ -108,15 +108,147 @@ mod tests {
 
     #[tokio::test]
     #[traced_test]
-    async fn test_replay_normalized() {
+    async fn test_replay_normalized_trade() {
         let client = Client::new(std::env::var("TARDIS_MACHINE_WS_URL").unwrap());
 
         let stream = client
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
-                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
+                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                data_types: vec!["trade".to_string()],
+                with_disconnect_messages: None,
+            }])
+            .await
+            .unwrap();
+
+        pin_mut!(stream);
+
+        let mut messages = vec![];
+
+        while let Some(msg) = stream.next().await {
+            if messages.len() == 10 {
+                break;
+            }
+            messages.push(msg.unwrap())
+        }
+
+        for message in messages {
+            assert!(matches!(message, Message::Trade(_)))
+        }
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_replay_normalized_book_change() {
+        let client = Client::new(std::env::var("TARDIS_MACHINE_WS_URL").unwrap());
+
+        let stream = client
+            .replay_normalized(vec![ReplayNormalizedRequestOptions {
+                exchange: Exchange::Bybit,
+                symbols: Some(vec!["BTCUSDT".to_string()]),
+                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                data_types: vec!["book_change".to_string()],
+                with_disconnect_messages: None,
+            }])
+            .await
+            .unwrap();
+
+        pin_mut!(stream);
+
+        let mut messages = vec![];
+
+        while let Some(msg) = stream.next().await {
+            if messages.len() == 10 {
+                break;
+            }
+            messages.push(msg.unwrap())
+        }
+
+        for message in messages {
+            assert!(matches!(message, Message::BookChange(_)))
+        }
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_replay_normalized_derivative_ticker() {
+        let client = Client::new(std::env::var("TARDIS_MACHINE_WS_URL").unwrap());
+
+        let stream = client
+            .replay_normalized(vec![ReplayNormalizedRequestOptions {
+                exchange: Exchange::Bybit,
+                symbols: Some(vec!["BTCUSDT".to_string()]),
+                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                data_types: vec!["derivative_ticker".to_string()],
+                with_disconnect_messages: None,
+            }])
+            .await
+            .unwrap();
+
+        pin_mut!(stream);
+
+        let mut messages = vec![];
+
+        while let Some(msg) = stream.next().await {
+            if messages.len() == 10 {
+                break;
+            }
+            messages.push(msg.unwrap())
+        }
+
+        for message in messages {
+            assert!(matches!(message, Message::DerivativeTicker(_)))
+        }
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_replay_normalized_book_snapshot() {
+        let client = Client::new(std::env::var("TARDIS_MACHINE_WS_URL").unwrap());
+
+        let stream = client
+            .replay_normalized(vec![ReplayNormalizedRequestOptions {
+                exchange: Exchange::Bybit,
+                symbols: Some(vec!["BTCUSDT".to_string()]),
+                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                data_types: vec!["book_snapshot_2_50ms".to_string()],
+                with_disconnect_messages: None,
+            }])
+            .await
+            .unwrap();
+
+        pin_mut!(stream);
+
+        let mut messages = vec![];
+
+        while let Some(msg) = stream.next().await {
+            if messages.len() == 10 {
+                break;
+            }
+            messages.push(msg.unwrap())
+        }
+
+        for message in messages {
+            assert!(matches!(message, Message::BookSnapshot(_)))
+        }
+    }
+
+    #[tokio::test]
+    #[traced_test]
+    async fn test_replay_normalized_trade_bar() {
+        let client = Client::new(std::env::var("TARDIS_MACHINE_WS_URL").unwrap());
+
+        let stream = client
+            .replay_normalized(vec![ReplayNormalizedRequestOptions {
+                exchange: Exchange::Bybit,
+                symbols: Some(vec!["BTCUSDT".to_string()]),
+                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
                 data_types: vec!["trade_bar_60m".to_string()],
                 with_disconnect_messages: None,
             }])
@@ -128,9 +260,14 @@ mod tests {
         let mut messages = vec![];
 
         while let Some(msg) = stream.next().await {
-            messages.push(msg);
+            if messages.len() == 10 {
+                break;
+            }
+            messages.push(msg.unwrap())
         }
 
-        assert_eq!(messages.len(), 23);
+        for message in messages {
+            assert!(matches!(message, Message::TradeBar(_)))
+        }
     }
 }

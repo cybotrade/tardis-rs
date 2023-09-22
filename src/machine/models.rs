@@ -93,28 +93,28 @@ pub enum TradeSide {
 #[serde(rename_all = "camelCase")]
 pub struct Trade {
     /// Instrument symbol as provided by exchange
-    symbol: String,
+    pub symbol: String,
 
     /// Exchange ID
-    exchange: Exchange,
+    pub exchange: Exchange,
 
     /// Trade id if provided by exchange
-    id: Option<String>,
+    pub id: Option<String>,
 
     /// Trade price as provided by exchange
-    price: f64,
+    pub price: f64,
 
     /// Trade amount as provided by exchange
-    amount: f64,
+    pub amount: f64,
 
     /// Liquidity taker side (aggressor)
-    side: TradeSide,
+    pub side: TradeSide,
 
     /// Trade timestamp provided by exchange (ISO 8601 format)
-    timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
 
     /// Message arrival timestamp (ISO 8601 format)
-    local_timestamp: DateTime<Utc>,
+    pub local_timestamp: DateTime<Utc>,
 }
 
 /// Initial L2 (market by price) order book snapshot (isSnapshot=true) plus incremental updates for
@@ -124,26 +124,26 @@ pub struct Trade {
 #[serde(rename_all = "camelCase")]
 pub struct BookChange {
     /// Instrument symbol as provided by exchange
-    symbol: String,
+    pub symbol: String,
 
     /// Exchange ID
-    exchange: Exchange,
+    pub exchange: Exchange,
 
     /// If true marks initial order book snapshot
-    is_snapshot: bool,
+    pub is_snapshot: bool,
 
     /// Updated bids price-amount levels
-    bids: Vec<BookLevel>,
+    pub bids: Vec<BookLevel>,
 
     /// Updated asks price-amount levels
-    asks: Vec<BookLevel>,
+    pub asks: Vec<BookLevel>,
 
     /// Order book update timestamp if provided by exchange,
     /// otherwise equals to localTimestamp, (ISO 8601 format)
-    timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
 
     /// Message arrival timestamp (ISO 8601 format)
-    local_timestamp: DateTime<Utc>,
+    pub local_timestamp: DateTime<Utc>,
 }
 
 /// Derivative instrument ticker info sourced from real-time ticker & instrument channels.
@@ -151,31 +151,31 @@ pub struct BookChange {
 #[serde(rename_all = "camelCase")]
 pub struct DerivativeTicker {
     /// Instrument symbol as provided by exchange
-    symbol: String,
+    pub symbol: String,
 
     /// Exchange ID
-    exchange: Exchange,
+    pub exchange: Exchange,
 
     /// Last instrument price if provided by exchange
-    last_price: Option<f64>,
+    pub last_price: Option<f64>,
 
     /// Last open interest if provided by exchange
-    open_interest: Option<f64>,
+    pub open_interest: Option<f64>,
 
     /// Last funding rate if provided by exchange
-    funding_rate: Option<f64>,
+    pub funding_rate: Option<f64>,
 
     /// Last index price if provided by exchange
-    index_price: Option<f64>,
+    pub index_price: Option<f64>,
 
     /// Last mark price if provided by exchange
-    mark_price: Option<f64>,
+    pub mark_price: Option<f64>,
 
     /// Message timestamp provided by exchange (ISO 8601 format)
-    timestamp: DateTime<Utc>,
+    pub timestamp: DateTime<Utc>,
 
     /// Message arrival timestamp (ISO 8601 format)
-    local_timestamp: DateTime<Utc>,
+    pub local_timestamp: DateTime<Utc>,
 }
 
 /// A particular level in the order book.

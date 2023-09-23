@@ -1,5 +1,5 @@
 use crate::Exchange;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// The options that can be specified for calling Tardis Machine Server's replay-normalized.
@@ -16,10 +16,10 @@ pub struct ReplayNormalizedRequestOptions {
     pub symbols: Option<Vec<String>>,
 
     /// Replay period start date (UTC) in a ISO 8601 format, e.g., 2019-04-01
-    pub from: NaiveDate,
+    pub from: DateTime<Utc>,
 
     /// Replay period start date (UTC) in a ISO 8601 format, e.g., 2019-04-02
-    pub to: NaiveDate,
+    pub to: DateTime<Utc>,
 
     /// Array of normalized [data types](https://docs.tardis.dev/api/tardis-machine#normalized-data-types)
     /// for which real-time data will be provided.

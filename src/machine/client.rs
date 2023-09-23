@@ -159,7 +159,7 @@ where
 #[cfg(test)]
 mod tests {
     use crate::Exchange;
-    use chrono::NaiveDate;
+    use chrono::{TimeZone, Utc};
     use futures_util::pin_mut;
     use tracing_test::traced_test;
 
@@ -174,8 +174,8 @@ mod tests {
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
-                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
+                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
                 data_types: vec!["trade".to_string()],
                 with_disconnect_messages: None,
             }])
@@ -207,8 +207,8 @@ mod tests {
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
-                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
+                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
                 data_types: vec!["book_change".to_string()],
                 with_disconnect_messages: None,
             }])
@@ -240,8 +240,8 @@ mod tests {
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
-                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
+                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
                 data_types: vec!["derivative_ticker".to_string()],
                 with_disconnect_messages: None,
             }])
@@ -273,8 +273,8 @@ mod tests {
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
-                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
+                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
                 data_types: vec!["book_snapshot_2_50ms".to_string()],
                 with_disconnect_messages: None,
             }])
@@ -306,8 +306,8 @@ mod tests {
             .replay_normalized(vec![ReplayNormalizedRequestOptions {
                 exchange: Exchange::Bybit,
                 symbols: Some(vec!["BTCUSDT".to_string()]),
-                from: NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
-                to: NaiveDate::from_ymd_opt(2022, 10, 2).unwrap(),
+                from: Utc.with_ymd_and_hms(2022, 10, 1, 0, 0, 0).unwrap(),
+                to: Utc.with_ymd_and_hms(2022, 10, 2, 0, 0, 0).unwrap(),
                 data_types: vec!["trade_bar_60m".to_string()],
                 with_disconnect_messages: None,
             }])

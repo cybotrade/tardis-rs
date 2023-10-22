@@ -1,10 +1,17 @@
+use std::time::Duration;
+
 use crate::machine::StreamNormalizedRequestOptions;
 use async_stream::stream;
-use futures_util::{SinkExt, Stream, StreamExt};
+use futures_util::{
+    stream::{SplitSink, SplitStream},
+    SinkExt, Stream, StreamExt,
+};
 use serde::de::DeserializeOwned;
+use tokio::net::TcpStream;
 use tokio_tungstenite::{
     connect_async,
     tungstenite::{self, protocol::frame::coding::CloseCode},
+    MaybeTlsStream, WebSocketStream,
 };
 
 use super::{Message, ReplayNormalizedRequestOptions};
@@ -69,6 +76,7 @@ impl Client {
             urlencoding::encode(&options)
         );
 
+        tracing::info!("[replay_normalized] url to tardis {}", url);
         websocket_conn(&url).await
     }
 
@@ -101,6 +109,7 @@ impl Client {
             urlencoding::encode(&options)
         );
 
+        tracing::info!("[stream_normalized] url to tardis {}", url);
         websocket_conn(&url).await
     }
 }
@@ -112,8 +121,12 @@ where
     let (mut ws_stream, _) = connect_async(url).await?;
 
     Ok(stream! {
+
+        let (mut writer, mut reader) = ws_stream.split();
+        tokio::spawn(heartbeat(writer));
+
         loop {
-            match ws_stream.next().await {
+            match reader.next().await {
                 Some(msg) => {
                     let msg = msg?;
                     match msg {
@@ -122,10 +135,10 @@ where
                         | tungstenite::Message::Pong(_) => {}
                         tungstenite::Message::Ping(_) => {
                             tracing::debug!("Received PING frame");
-                            ws_stream
-                                .send(tungstenite::Message::Pong(vec![]))
-                                .await
-                                .ok();
+                            // ws_stream
+                            //     .send(tungstenite::Message::Pong(vec![]))
+                            //     .await
+                            //     .ok();
                         }
                         tungstenite::Message::Close(frame) => {
                             if let Some(frame) = frame {
@@ -154,6 +167,33 @@ where
             }
         }
     })
+}
+
+async fn heartbeat(
+    mut sender: SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, tungstenite::Message>,
+) {
+    // create an interval.
+    let mut interval = tokio::time::interval(Duration::from_secs(10));
+
+    loop {
+        // wait for the interval to arrive.
+        interval.tick().await;
+
+        // create a copy of the retries count.
+        let mut count = 3;
+        // the duration to wait before each retry.
+        let mut interval = tokio::time::interval(Duration::from_secs(1));
+
+        // keep trying until we run out of count.
+        while count > 0 {
+            interval.tick().await;
+
+            // send native ping frame.
+            let _ = sender.send(tungstenite::Message::Ping(vec![]));
+
+            count -= 1;
+        }
+    }
 }
 
 #[cfg(test)]

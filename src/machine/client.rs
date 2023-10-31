@@ -2,10 +2,7 @@ use std::time::Duration;
 
 use crate::machine::StreamNormalizedRequestOptions;
 use async_stream::stream;
-use futures_util::{
-    stream::{SplitSink, SplitStream},
-    SinkExt, Stream, StreamExt,
-};
+use futures_util::{stream::SplitSink, SinkExt, Stream, StreamExt};
 use serde::de::DeserializeOwned;
 use tokio::net::TcpStream;
 use tokio_tungstenite::{
@@ -29,6 +26,15 @@ pub enum Error {
     /// The error when failed to connect to Tardis' websocket connection.
     #[error("Failed to connect: {0}")]
     ConnectFailed(#[from] tungstenite::Error),
+
+    /// The error when WS connection to the machine server got rejected.
+    #[error("Connection rejected: {reason}")]
+    ConnectRejected {
+        /// The status code for the initial WS connection.
+        status: tungstenite::http::StatusCode,
+        /// The reason why the connection was rejected.
+        reason: String,
+    },
 
     /// The error where the websocket connection was closed unexpectedly by Tardis.
     #[error("Connection closed: {reason}")]
@@ -118,11 +124,25 @@ async fn websocket_conn<T>(url: &str) -> Result<impl Stream<Item = Result<T>>>
 where
     T: DeserializeOwned,
 {
-    let (mut ws_stream, _) = connect_async(url).await?;
+    let (ws_stream, ws_resp) = connect_async(url).await?;
+
+    // Return the error response if the status code is not 101.
+    // (meaning the HTTP connection is not being upgraded to a WS connection)
+    if ws_resp.status() != tungstenite::http::StatusCode::SWITCHING_PROTOCOLS {
+        return match ws_resp.body() {
+            Some(resp) => Err(Error::ConnectRejected {
+                status: ws_resp.status(),
+                reason: String::from_utf8_lossy(resp).to_string(),
+            }),
+            None => Err(Error::ConnectRejected {
+                status: ws_resp.status(),
+                reason: "Unknown reason".to_string(),
+            }),
+        };
+    }
 
     Ok(stream! {
-
-        let (mut writer, mut reader) = ws_stream.split();
+        let (writer, mut reader) = ws_stream.split();
         tokio::spawn(heartbeat(writer));
 
         loop {

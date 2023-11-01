@@ -10,6 +10,9 @@ keywords = ["tardis", "market-data", "cryptocurrency", "trading"]
 version = "0.1.3"
 edition = "2021"
 
+[package.metadata.docs.rs]
+all-features = true
+
 [features]
 default = []
 machine = [

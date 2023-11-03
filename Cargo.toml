@@ -15,12 +15,12 @@ all-features = true
 
 [features]
 default = []
-machine = [
-    "dep:async-stream",
-    "dep:async-stream",
-    "dep:futures-util",
-    "dep:tokio-tungstenite",
-]
+machine = ["dep:async-stream", "dep:futures-util", "dep:tokio-tungstenite"]
+example = ["dep:tracing-subscriber"]
+
+[[bin]]
+name = "stream-normalized"
+path = "examples/stream_normalized.rs"
 
 [dependencies]
 
@@ -51,6 +51,9 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = [] }
 
 # Utils
+tracing-subscriber = { version = "0.3", default-features = false, features = [
+    "fmt",
+], optional = true }
 urlencoding = "2.1"
 tracing = "0.1"
 
